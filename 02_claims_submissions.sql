@@ -1,11 +1,11 @@
 -- ============================================================================
--- TABLE: claims_json.claims_submissions
+-- TABLE: claims_json_demo.claims_submissions
 -- Complexity: MODERATE — nested objects + arrays of service lines
 -- ============================================================================
 
-DROP TABLE IF EXISTS serverless_stable_swv01_catalog.claims_json.claims_submissions;
+DROP TABLE IF EXISTS serverless_stable_swv01_catalog.claims_json_demo.claims_submissions;
 
-CREATE TABLE serverless_stable_swv01_catalog.claims_json.claims_submissions (
+CREATE TABLE serverless_stable_swv01_catalog.claims_json_demo.claims_submissions (
   claim_id        STRING    COMMENT 'Unique claim identifier (CLM-YYYY-NNNNN)',
   submitted_date  DATE      COMMENT 'Date the claim was submitted to the payer',
   payer_id        STRING    COMMENT 'Payer/plan identifier',
@@ -15,7 +15,7 @@ CREATE TABLE serverless_stable_swv01_catalog.claims_json.claims_submissions (
 ) COMMENT 'Claims submissions with JSON payloads containing service lines, adjudication, and provider details';
 
 -- Generate 500 claims with 1-4 service lines each
-INSERT INTO serverless_stable_swv01_catalog.claims_json.claims_submissions
+INSERT INTO serverless_stable_swv01_catalog.claims_json_demo.claims_submissions
 WITH claim_ids AS (
   SELECT explode(sequence(1, 500)) AS rn
 ),
@@ -176,7 +176,7 @@ FROM base b
 JOIN service_lines sl ON sl.seed = b.seed;
 
 -- Update total_charge_amount from the generated service line data
-UPDATE serverless_stable_swv01_catalog.claims_json.claims_submissions
+UPDATE serverless_stable_swv01_catalog.claims_json_demo.claims_submissions
 SET total_charge_amount = COALESCE(
   CAST(
     AGGREGATE(

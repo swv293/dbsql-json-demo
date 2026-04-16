@@ -40,7 +40,7 @@ claim_lines AS (
     sl.rendering_provider_npi,
     sl.modifiers,
     sl.revenue_code
-  FROM claims_json.claims_submissions c
+  FROM claims_json_demo.claims_submissions c
   LATERAL VIEW explode(
     from_json(
       c.claim_json:service_lines,
@@ -66,7 +66,7 @@ member_details AS (
     m.profile_json:sdoh_flags.transportation_barrier::boolean AS transport_barrier,
     size(from_json(m.profile_json:conditions, 'ARRAY<STRUCT<code:STRING>>')) AS condition_count,
     size(from_json(m.profile_json:programs_enrolled, 'ARRAY<STRING>')) AS program_count
-  FROM member_json.member_profiles m
+  FROM member_json_demo.member_profiles m
 ),
 
 -- CTE 3: Provider details from VARIANT — one row per NPI + plan combination
@@ -84,7 +84,7 @@ provider_details AS (
     np.value:plan_code::string AS plan_code,
     np.value:network_tier::string AS network_tier,
     np.value:accepting_new_patients::boolean AS accepting_new
-  FROM provider_json.provider_network p,
+  FROM provider_json_demo.provider_network p,
   LATERAL variant_explode(p.provider_data:network_participation) np
 ),
 
@@ -97,7 +97,7 @@ ops_summary AS (
     max(event_json:status::string) AS latest_event_status,
     max(CASE WHEN event_type = 'prior_auth'
       THEN event_json:resolution.outcome::string END) AS pa_outcome
-  FROM ops_json.operational_events
+  FROM ops_json_demo.operational_events
   WHERE related_claim_id IS NOT NULL
   GROUP BY related_claim_id
 )
@@ -177,7 +177,7 @@ WITH claim_data AS (
     c.claim_id,
     c.claim_json:subscriber.member_id::string AS member_id,
     c.claim_json:adjudication.status::string AS adj_status
-  FROM claims_json.claims_submissions c
+  FROM claims_json_demo.claims_submissions c
 )
 SELECT
   m.line_of_business,
@@ -189,7 +189,7 @@ SELECT
     NULLIF(count(DISTINCT cd.claim_id), 0), 1
   ) AS denial_rate_pct
 FROM claim_data cd
-JOIN member_json.member_profiles m ON cd.member_id = m.member_id
+JOIN member_json_demo.member_profiles m ON cd.member_id = m.member_id
 GROUP BY 1, 2
 ORDER BY 1, 2;
 
@@ -202,6 +202,6 @@ SELECT
   round(count_if(event_json:sla.met::boolean = true) * 100.0 / count(*), 1) AS sla_met_pct,
   round(avg(event_json:sla.actual_hours::double), 1) AS avg_actual_hours,
   round(percentile_approx(event_json:sla.actual_hours::double, 0.95), 1) AS p95_hours
-FROM ops_json.operational_events
+FROM ops_json_demo.operational_events
 GROUP BY event_type
 ORDER BY event_type

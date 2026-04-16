@@ -1,6 +1,6 @@
 -- ============================================================================
 -- PART 3: THE VARIANT TYPE — Why It Matters and How to Use It
--- Table used: provider_json.provider_network (VARIANT column)
+-- Table used: provider_json_demo.provider_network (VARIANT column)
 -- ============================================================================
 USE CATALOG serverless_stable_swv01_catalog;
 
@@ -20,7 +20,7 @@ SELECT
   provider_type,
   typeof(provider_data)   AS data_type,
   provider_data           AS raw_variant_view
-FROM provider_json.provider_network
+FROM provider_json_demo.provider_network
 LIMIT 3;
 
 -- Side-by-side: same extraction syntax works on both STRING and VARIANT
@@ -31,7 +31,7 @@ SELECT
   p.provider_data:name                AS name_obj,
   p.provider_data:contract.contract_type AS contract_type,
   p.provider_data:contract.discount_pct  AS discount_pct
-FROM provider_json.provider_network p
+FROM provider_json_demo.provider_network p
 LIMIT 5;
 
 -- ============================================================================
@@ -51,7 +51,7 @@ SELECT
 
 -- Show that our provider_data column was populated using PARSE_JSON
 -- This is how the INSERT statement created the VARIANT values
-DESCRIBE TABLE provider_json.provider_network;
+DESCRIBE TABLE provider_json_demo.provider_network;
 
 -- ============================================================================
 -- SCENARIO 16: Querying VARIANT with colon syntax
@@ -70,7 +70,7 @@ SELECT
   provider_data:name.credentials::string  AS credentials,
   -- For organization providers
   provider_data:name.organization_name::string AS org_name
-FROM provider_json.provider_network
+FROM provider_json_demo.provider_network
 LIMIT 10;
 
 -- VARIANT returns typed values — discount_pct is already numeric
@@ -79,7 +79,7 @@ SELECT
   provider_data:contract.discount_pct       AS discount_raw,
   typeof(provider_data:contract.discount_pct) AS value_type,
   provider_data:contract.discount_pct::double AS discount_typed
-FROM provider_json.provider_network
+FROM provider_json_demo.provider_network
 LIMIT 5;
 
 -- ============================================================================
@@ -96,7 +96,7 @@ SELECT
   variant_get(provider_data, '$.specialties[0].board_certified', 'BOOLEAN') AS is_board_certified,
   variant_get(provider_data, '$.contract.discount_pct', 'DOUBLE') AS discount_pct,
   variant_get(provider_data, '$.contract.fee_schedule_id', 'STRING') AS fee_schedule
-FROM provider_json.provider_network
+FROM provider_json_demo.provider_network
 LIMIT 10;
 
 -- try_variant_get for safe extraction (no errors on missing paths)
@@ -105,7 +105,7 @@ SELECT
   try_variant_get(provider_data, '$.specialties[1].description', 'STRING') AS second_specialty,
   try_variant_get(provider_data, '$.name.organization_name', 'STRING') AS org_name,
   try_variant_get(provider_data, '$.nonexistent.path', 'STRING') AS missing_returns_null
-FROM provider_json.provider_network
+FROM provider_json_demo.provider_network
 LIMIT 10;
 
 -- ============================================================================
@@ -126,7 +126,7 @@ SELECT
   addr.value:state::string   AS state,
   addr.value:zip::string     AS zip,
   addr.value:phone::string   AS phone
-FROM provider_json.provider_network p,
+FROM provider_json_demo.provider_network p,
 LATERAL variant_explode(p.provider_data:addresses) addr
 LIMIT 15;
 
@@ -137,7 +137,7 @@ SELECT
   np.value:plan_code::string AS plan_code,
   np.value:network_tier::string AS network_tier,
   np.value:accepting_new_patients::boolean AS accepting_new
-FROM provider_json.provider_network p,
+FROM provider_json_demo.provider_network p,
 LATERAL variant_explode(p.provider_data:network_participation) np
 WHERE p.provider_type = 'individual'
 LIMIT 20;
@@ -155,12 +155,12 @@ LIMIT 20;
 SELECT
   provider_id,
   schema_of_variant(provider_data) AS row_schema
-FROM provider_json.provider_network
+FROM provider_json_demo.provider_network
 LIMIT 3;
 
 -- Aggregated schema across all providers — shows the full possible structure
 SELECT schema_of_variant_agg(provider_data) AS full_schema
-FROM provider_json.provider_network;
+FROM provider_json_demo.provider_network;
 
 -- ============================================================================
 -- SCENARIO 20: Complex VARIANT operations — chained extraction + filtering
@@ -181,7 +181,7 @@ SELECT
   np.value:network_tier::string AS tier,
   p.provider_data:addresses[0].city::string AS city,
   p.provider_data:contract.contract_type::string AS contract_type
-FROM provider_json.provider_network p,
+FROM provider_json_demo.provider_network p,
 LATERAL variant_explode(p.provider_data:network_participation) np
 WHERE p.provider_type = 'individual'
   AND np.value:plan_code::string LIKE 'MA-%'
@@ -194,7 +194,7 @@ SELECT
   variant_get(p.provider_data, '$.specialties[0].description', 'STRING') AS specialty,
   lang.value::string AS language,
   count(*) AS provider_count
-FROM provider_json.provider_network p,
+FROM provider_json_demo.provider_network p,
 LATERAL variant_explode(p.provider_data:languages) lang
 WHERE p.provider_type = 'individual'
 GROUP BY 1, 2

@@ -1,6 +1,6 @@
 -- ============================================================================
 -- PART 2A: JSON STRING BASICS — Extraction Fundamentals
--- Tables used: claims_json.claims_submissions, ops_json.operational_events
+-- Tables used: claims_json_demo.claims_submissions, ops_json_demo.operational_events
 -- ============================================================================
 USE CATALOG serverless_stable_swv01_catalog;
 
@@ -16,7 +16,7 @@ SELECT
   claim_json:filing_code          AS filing_code,
   claim_json:release_of_info      AS release_of_info,
   claim_json:coordination_of_benefits AS cob_flag
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 10;
 
 -- ============================================================================
@@ -32,7 +32,7 @@ SELECT
   claim_json:subscriber.relationship_code AS relationship,
   claim_json:billing_provider.npi       AS billing_npi,
   claim_json:billing_provider.name      AS billing_provider_name
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 10;
 
 -- ============================================================================
@@ -48,7 +48,7 @@ SELECT
   claim_json:subscriber.member_id    AS lowercase_path,
   claim_json:SUBSCRIBER.MEMBER_ID   AS uppercase_path,
   claim_json:Subscriber.Member_Id   AS mixed_path
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 3;
 
 -- Brackets are case sensitive — notice the NULL for wrong case
@@ -56,7 +56,7 @@ SELECT
   claim_id,
   claim_json:['subscriber']          AS correct_case,
   claim_json:['SUBSCRIBER']          AS wrong_case_returns_null
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 3;
 
 -- ============================================================================
@@ -73,7 +73,7 @@ SELECT
   claim_json:adjudication.allowed_amount    AS allowed_raw_string,
   claim_json:coordination_of_benefits       AS cob_raw_string,
   typeof(claim_json:adjudication.paid_amount) AS what_type_is_this
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 5;
 
 -- With casting — now we can do math and proper filtering
@@ -84,7 +84,7 @@ SELECT
   claim_json:coordination_of_benefits::boolean       AS has_cob,
   round(claim_json:adjudication.paid_amount::double /
     NULLIF(claim_json:adjudication.allowed_amount::double, 0) * 100, 1) AS pct_of_allowed
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 WHERE claim_json:adjudication.status::string = 'paid'
   AND claim_json:adjudication.paid_amount::double > 500
 ORDER BY paid_amount DESC
@@ -105,5 +105,5 @@ SELECT
   event_json:sla.target_hours::int AS sla_target_hrs,
   event_json:sla.actual_hours::double AS sla_actual_hrs,
   event_json:sla.met::boolean      AS sla_met
-FROM ops_json.operational_events
+FROM ops_json_demo.operational_events
 LIMIT 10

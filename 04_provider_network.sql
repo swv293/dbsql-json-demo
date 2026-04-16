@@ -1,12 +1,12 @@
 -- ============================================================================
--- TABLE: provider_json.provider_network
+-- TABLE: provider_json_demo.provider_network
 -- Complexity: MODERATE-HIGH — uses VARIANT type instead of STRING
 -- This is the VARIANT showcase table
 -- ============================================================================
 
-DROP TABLE IF EXISTS serverless_stable_swv01_catalog.provider_json.provider_network;
+DROP TABLE IF EXISTS serverless_stable_swv01_catalog.provider_json_demo.provider_network;
 
-CREATE TABLE serverless_stable_swv01_catalog.provider_json.provider_network (
+CREATE TABLE serverless_stable_swv01_catalog.provider_json_demo.provider_network (
   provider_id    STRING    COMMENT 'Internal provider identifier (PRV-NNNNNN)',
   npi            STRING    COMMENT 'National Provider Identifier (10-digit)',
   provider_type  STRING    COMMENT 'individual or organization',
@@ -15,7 +15,7 @@ CREATE TABLE serverless_stable_swv01_catalog.provider_json.provider_network (
 ) COMMENT 'Provider directory with VARIANT column — showcases native semi-structured data type for provider details, specialties, and network participation';
 
 -- Generate 200 providers
-INSERT INTO serverless_stable_swv01_catalog.provider_json.provider_network
+INSERT INTO serverless_stable_swv01_catalog.provider_json_demo.provider_network
 WITH provider_ids AS (
   SELECT explode(sequence(1, 200)) AS rn
 ),

@@ -1,11 +1,11 @@
 -- ============================================================================
--- TABLE: member_json.member_profiles
+-- TABLE: member_json_demo.member_profiles
 -- Complexity: HIGH — deep nesting, arrays of objects, SDoH flags, engagement
 -- ============================================================================
 
-DROP TABLE IF EXISTS serverless_stable_swv01_catalog.member_json.member_profiles;
+DROP TABLE IF EXISTS serverless_stable_swv01_catalog.member_json_demo.member_profiles;
 
-CREATE TABLE serverless_stable_swv01_catalog.member_json.member_profiles (
+CREATE TABLE serverless_stable_swv01_catalog.member_json_demo.member_profiles (
   member_id            STRING  COMMENT 'Unique member identifier (MBR-NNNNNN)',
   enrollment_start_date DATE   COMMENT 'Coverage effective date',
   plan_code            STRING  COMMENT 'Plan/product code',
@@ -14,7 +14,7 @@ CREATE TABLE serverless_stable_swv01_catalog.member_json.member_profiles (
 ) COMMENT 'Member profiles with deeply nested JSON including demographics, risk, SDoH, conditions, and engagement history';
 
 -- Generate 300 members
-INSERT INTO serverless_stable_swv01_catalog.member_json.member_profiles
+INSERT INTO serverless_stable_swv01_catalog.member_json_demo.member_profiles
 WITH member_ids AS (
   SELECT explode(sequence(1, 300)) AS rn
 ),

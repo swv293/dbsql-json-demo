@@ -1,11 +1,11 @@
 -- ============================================================================
--- TABLE: ops_json.operational_events
+-- TABLE: ops_json_demo.operational_events
 -- Complexity: LOWER — good starter table, flat JSON with simple arrays
 -- ============================================================================
 
-DROP TABLE IF EXISTS serverless_stable_swv01_catalog.ops_json.operational_events;
+DROP TABLE IF EXISTS serverless_stable_swv01_catalog.ops_json_demo.operational_events;
 
-CREATE TABLE serverless_stable_swv01_catalog.ops_json.operational_events (
+CREATE TABLE serverless_stable_swv01_catalog.ops_json_demo.operational_events (
   event_id          STRING      COMMENT 'Unique event identifier (EVT-NNNNNNNN)',
   event_type        STRING      COMMENT 'prior_auth, appeal, grievance, or call_center',
   source_system     STRING      COMMENT 'Originating system name',
@@ -16,7 +16,7 @@ CREATE TABLE serverless_stable_swv01_catalog.ops_json.operational_events (
 ) COMMENT 'Operational events from UM, appeals, grievances, and call center with JSON status histories and SLA tracking';
 
 -- Generate 400 events using hash() for deterministic pseudo-random values
-INSERT INTO serverless_stable_swv01_catalog.ops_json.operational_events
+INSERT INTO serverless_stable_swv01_catalog.ops_json_demo.operational_events
 WITH event_ids AS (
   SELECT explode(sequence(1, 400)) AS rn
 ),

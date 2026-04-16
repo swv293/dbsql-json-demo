@@ -26,7 +26,7 @@ FROM (
       claim_json:adjudication,
       'STRUCT<status:STRING, paid_amount:DOUBLE, allowed_amount:DOUBLE, denial_codes:ARRAY<STRING>, remark_codes:ARRAY<STRING>>'
     ) AS adj
-  FROM claims_json.claims_submissions
+  FROM claims_json_demo.claims_submissions
 )
 WHERE adj.status = 'denied'
 LIMIT 10;
@@ -44,7 +44,7 @@ FROM (
       claim_json:subscriber,
       'STRUCT<member_id:STRING, group_number:STRING, relationship_code:STRING>'
     ) AS sub
-  FROM claims_json.claims_submissions
+  FROM claims_json_demo.claims_submissions
 )
 LIMIT 10;
 
@@ -68,7 +68,7 @@ SELECT
   -- Array access
   claim_json:service_lines[0].procedure_code                   AS colon_first_cpt,
   get_json_object(claim_json, '$.service_lines[0].procedure_code') AS gjso_first_cpt
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 5;
 
 -- ============================================================================
@@ -85,7 +85,7 @@ SELECT
   jt.status,
   jt.priority,
   jt.assigned_to
-FROM ops_json.operational_events e
+FROM ops_json_demo.operational_events e
 LATERAL VIEW json_tuple(
   e.event_json, 'status', 'priority', 'assigned_to'
 ) jt AS status, priority, assigned_to
@@ -98,7 +98,7 @@ SELECT
   event_json:status::string     AS status,
   event_json:priority::string   AS priority,
   event_json:assigned_to::string AS assigned_to
-FROM ops_json.operational_events
+FROM ops_json_demo.operational_events
 LIMIT 10;
 
 -- ============================================================================
@@ -110,17 +110,17 @@ LIMIT 10;
 
 -- What's inside the claim JSON?
 SELECT schema_of_json(claim_json) AS claim_schema
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 1;
 
 -- What's inside the member profile JSON?
 SELECT schema_of_json(profile_json) AS profile_schema
-FROM member_json.member_profiles
+FROM member_json_demo.member_profiles
 LIMIT 1;
 
 -- What's inside the operational event JSON?
 SELECT schema_of_json(event_json) AS event_schema
-FROM ops_json.operational_events
+FROM ops_json_demo.operational_events
 WHERE event_type = 'prior_auth'
 LIMIT 1;
 
@@ -156,7 +156,7 @@ SELECT
   event_json:resolution IS NULL          AS resolution_is_null,
   event_json:resolution.outcome::string  AS outcome,
   event_json:resolution.outcome IS NULL  AS outcome_is_null
-FROM ops_json.operational_events
+FROM ops_json_demo.operational_events
 LIMIT 10;
 
 -- Count resolved vs unresolved events
@@ -167,5 +167,5 @@ SELECT
     ELSE 'Resolved'
   END AS resolution_status,
   count(*) AS event_count
-FROM ops_json.operational_events
+FROM ops_json_demo.operational_events
 GROUP BY 1

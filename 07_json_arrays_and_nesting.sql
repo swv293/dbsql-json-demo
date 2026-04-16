@@ -1,6 +1,6 @@
 -- ============================================================================
 -- PART 2B: ARRAYS & NESTING — Working with JSON Arrays
--- Tables used: claims_json.claims_submissions, member_json.member_profiles
+-- Tables used: claims_json_demo.claims_submissions, member_json_demo.member_profiles
 -- ============================================================================
 USE CATALOG serverless_stable_swv01_catalog;
 
@@ -17,7 +17,7 @@ SELECT
   claim_json:service_lines[0].place_of_service AS first_line_pos,
   claim_json:service_lines[1].procedure_code   AS second_line_cpt,
   claim_json:service_lines[1].charge_amount::double AS second_line_charge
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 10;
 
 -- ============================================================================
@@ -33,7 +33,7 @@ SELECT
   claim_json:service_lines[*].procedure_code     AS all_procedure_codes,
   claim_json:service_lines[*].charge_amount       AS all_charges,
   claim_json:service_lines[*].diagnosis_pointers  AS all_dx_pointers
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 10;
 
 -- Use wildcard to find claims containing a specific CPT code
@@ -42,7 +42,7 @@ SELECT
   claim_type,
   total_charge_amount,
   claim_json:service_lines[*].procedure_code AS all_cpts
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 WHERE array_contains(
   from_json(claim_json:service_lines[*].procedure_code, 'ARRAY<STRING>'),
   '99214'
@@ -57,7 +57,7 @@ WHERE array_contains(
 
 -- Step 1: Understand the schema first
 SELECT schema_of_json(claim_json:service_lines) AS inferred_schema
-FROM claims_json.claims_submissions
+FROM claims_json_demo.claims_submissions
 LIMIT 1;
 
 -- Step 2: Explode service lines into individual rows
@@ -72,7 +72,7 @@ SELECT
   sl.place_of_service,
   sl.date_of_service,
   sl.rendering_provider_npi
-FROM claims_json.claims_submissions c
+FROM claims_json_demo.claims_submissions c
 LATERAL VIEW OUTER explode(
   from_json(
     c.claim_json:service_lines,
@@ -87,7 +87,7 @@ SELECT
   count(*)                           AS line_count,
   round(sum(sl.charge_amount), 2)    AS total_charges,
   round(avg(sl.charge_amount), 2)    AS avg_charge
-FROM claims_json.claims_submissions c
+FROM claims_json_demo.claims_submissions c
 LATERAL VIEW explode(
   from_json(
     c.claim_json:service_lines,
@@ -114,7 +114,7 @@ SELECT
   eng.timestamp,
   eng.outcome,
   eng.agent_id
-FROM member_json.member_profiles m
+FROM member_json_demo.member_profiles m
 LATERAL VIEW OUTER explode(
   from_json(
     m.profile_json:engagement_history,
@@ -130,7 +130,7 @@ SELECT
   eng.outcome,
   count(*) AS touch_count,
   count(DISTINCT m.member_id) AS unique_members
-FROM member_json.member_profiles m
+FROM member_json_demo.member_profiles m
 LATERAL VIEW explode(
   from_json(
     m.profile_json:engagement_history,
@@ -153,9 +153,9 @@ SELECT
   cond.description,
   count(DISTINCT m.member_id) AS member_count,
   round(count(DISTINCT m.member_id) * 100.0 /
-    (SELECT count(*) FROM member_json.member_profiles WHERE line_of_business = 'Medicare Advantage'), 1
+    (SELECT count(*) FROM member_json_demo.member_profiles WHERE line_of_business = 'Medicare Advantage'), 1
   ) AS pct_of_ma_members
-FROM member_json.member_profiles m
+FROM member_json_demo.member_profiles m
 LATERAL VIEW explode(
   from_json(
     m.profile_json:conditions,
