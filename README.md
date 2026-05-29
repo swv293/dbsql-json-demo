@@ -2,6 +2,32 @@
 
 A hands-on guide to querying, extracting, and transforming semi-structured JSON data using Databricks SQL. Built for analysts transitioning from traditional Oracle/SQL Server environments where data lives in flat, normalized tables.
 
+---
+
+## Two ways to use this tutorial
+
+### Option A — Databricks Notebooks (recommended for sharing)
+
+Two self-contained notebooks you can import directly into any Databricks workspace.
+
+| Notebook | Purpose |
+|----------|---------|
+| [`notebooks/00_setup.ipynb`](notebooks/00_setup.ipynb) | Creates schemas and loads all sample data (~3–5 min) |
+| [`notebooks/01_json_demo.ipynb`](notebooks/01_json_demo.ipynb) | All 21 scenarios with narrative and runnable SQL cells |
+
+**To import:** In your Databricks workspace, go to **Workspace → Import** and upload the `.ipynb` file, or paste the GitHub raw URL directly.
+
+> ⚠️ **Before running either notebook:** enter your Unity Catalog catalog name in the widget that appears at the top. The widget defaults to blank — you must fill it in. If you are unsure of your catalog name, run `SHOW CATALOGS;` in a query window first.
+
+---
+
+### Option B — Individual SQL files (for step-by-step or scripted execution)
+
+Run the `.sql` files in order using the Databricks SQL editor, `run_sql.sh`, or `run_sql.py`.
+See the section below for the full walkthrough.
+
+---
+
 ## What You'll Learn
 
 | Section | Concepts | Time |
