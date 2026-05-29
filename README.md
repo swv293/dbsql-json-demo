@@ -4,6 +4,15 @@ A hands-on guide to querying, extracting, and transforming semi-structured JSON 
 
 ---
 
+## Prerequisites
+
+- A Databricks workspace with **Unity Catalog** enabled (required for the VARIANT type and three-part catalog names)
+- A SQL warehouse (Serverless recommended)
+
+**Don't have a Databricks workspace?** Start a free trial at [databricks.com/try-databricks](https://www.databricks.com/try-databricks) — no credit card required, Unity Catalog is enabled by default.
+
+---
+
 ## Two ways to use this tutorial
 
 ### Option A — Databricks Notebooks (recommended for sharing)
